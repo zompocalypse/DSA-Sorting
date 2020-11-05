@@ -1,9 +1,11 @@
+const LinkedList = require('./LinkedList');
+
 // Bubble sort
-function swap(array, i, j) {
-  const tmp = array[i];
-  array[i] = array[j];
-  array[j] = tmp;
-}
+// function swap(array, i, j) {
+//   const tmp = array[i];
+//   array[i] = array[j];
+//   array[j] = tmp;
+// }
 
 function bubbleSort(array) {
   let swaps = 0;
@@ -216,19 +218,247 @@ const testData = [
 ];
 
 // 3. Implementing quicksort
-function qSort(array) {
-  quickSort(array);
+function qSort(array, start = 0, end = array.length) {
+  if (start >= end) {
+    return array;
+  }
+  const middle = partition(array, start, end);
+  array = qSort(array, start, middle);
+  array = qSort(array, middle + 1, end);
   return array;
+
+  function partition(array, start, end) {
+    const pivot = array[end - 1];
+    let j = start;
+    for (let i = start; i < end - 1; i++) {
+      if (array[i] <= pivot) {
+        swap(array, i, j);
+        j++;
+      }
+    }
+    swap(array, end - 1, j);
+    return j;
+  }
 }
 
-console.log(qSort(testData));
+// console.log(qSort(testData));
 
 // 4. Implementing merge sort
 function mSort(array) {
-  mergeSort(array);
+  if (array.length <= 1) {
+    return array;
+  }
+
+  const middle = Math.floor(array.length / 2);
+  let left = array.slice(0, middle);
+  let right = array.slice(middle, array.length);
+
+  left = mSort(left);
+  right = mSort(right);
+  return merge(left, right, array);
+
+  function merge(left, right, array) {
+    let leftIndex = 0;
+    let rightIndex = 0;
+    let outputIndex = 0;
+    while (leftIndex < left.length && rightIndex < right.length) {
+      if (left[leftIndex] < right[rightIndex]) {
+        array[outputIndex++] = left[leftIndex++];
+      } else {
+        array[outputIndex++] = right[rightIndex++];
+      }
+    }
+
+    for (let i = leftIndex; i < left.length; i++) {
+      array[outputIndex++] = left[i];
+    }
+
+    for (let i = rightIndex; i < right.length; i++) {
+      array[outputIndex++] = right[i];
+    }
+    // console.log('merge step: ', count, ' - ', array);
+    return array;
+  }
+}
+
+// console.log(mSort(testData));
+
+// 5. Sorting a linked list using merge sort
+
+function mSortLinkedList(list) {
+  let currentNode = list.head;
+  if (currentNode.next === null) {
+    return list;
+  }
+  let length = 1;
+  while (currentNode.next !== null) {
+    length++;
+    currentNode = currentNode.next;
+  }
+  const middle = Math.floor(length / 2);
+  let left = splitLinkedList(list, 0, middle);
+  let right = splitLinkedList(list, middle, length);
+
+  left = mSortLinkedList(left);
+  right = mSortLinkedList(right);
+
+  return mergeLinkedList(left, right);
+}
+
+function splitLinkedList(list, start, end) {
+  let currentNode = list.head;
+  if (currentNode === null) return;
+  const splitList = new LinkedList();
+
+  let i = 0;
+  while (currentNode !== null) {
+    if (i >= start && i < end) {
+      splitList.insertLast(currentNode.value);
+    }
+    i++;
+    currentNode = currentNode.next;
+  }
+  return splitList;
+}
+
+function mergeLinkedList(left, right) {
+  const newMergedList = new LinkedList();
+  let currentLeft = left.head;
+  let currentRight = right.head;
+
+  while (currentLeft && currentRight) {
+    if (currentLeft.value <= currentRight.value) {
+      newMergedList.insertLast(currentLeft.value);
+      currentLeft = currentLeft.next;
+    } else {
+      newMergedList.insertLast(currentRight.value);
+      currentRight = currentRight.next;
+    }
+  }
+
+  while (currentLeft) {
+    newMergedList.insertLast(currentLeft.value);
+    currentLeft = currentLeft.next;
+  }
+  while (currentRight) {
+    newMergedList.insertLast(currentRight.value);
+    currentRight = currentRight.next;
+  }
+  return newMergedList;
+}
+
+function display(list) {
+  console.log(JSON.stringify(list, null, 4));
+}
+
+const LL = new LinkedList();
+
+function main() {
+  LL.insertFirst(7);
+  LL.insertFirst(8);
+  LL.insertFirst(3);
+  LL.insertFirst(6);
+  LL.insertFirst(4);
+  LL.insertFirst(1);
+  LL.insertFirst(2);
+  LL.insertFirst(5);
+}
+
+main();
+// display(mSortLinkedList(LL));
+
+// 6. Bucket Sort
+
+function bucketSort(arr, min, max) {
+  const buckets = Array(max - min + 1).fill(0);
+  let bucket;
+  for (let i = 0; i < arr.length; i++) {
+    bucket = arr[i] - min;
+    buckets[bucket] += 1;
+  }
+  const results = [];
+  for (let i = 0; i < buckets.length; i++) {
+    let total = buckets[i];
+    let num = i + min;
+    for (let j = 0; j < total; j++) {
+      results.push(num);
+    }
+  }
+  return results;
+}
+
+// console.log(bucketSort([5, 19, 10, 20, 4, 7, 25, 30, 25, 6, 3, 2, 1], 1, 30));
+
+// 7. Sort in place
+
+function sortInPlace(array) {
+  for (let i = 0; i < array.length; i++) {
+    let randomIndex = Math.floor(Math.random() * array.length);
+    swap(i, randomIndex, array);
+  }
   return array;
 }
 
-console.log(mSort(testData));
+function swap(i, j, array) {
+  const temp = array[i];
+  array[i] = array[j];
+  array[j] = temp;
+}
 
-// 5. Sorting a linked list using merge sort
+const randomize = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+// console.log(sortInPlace(randomize));
+
+// 8. Sorting books
+
+function mSortingBooks(array) {
+  if (array.length <= 1) {
+    return array;
+  }
+
+  const middle = Math.floor(array.length / 2);
+  let left = array.slice(0, middle);
+  let right = array.slice(middle, array.length);
+
+  left = mSortingBooks(left);
+  right = mSortingBooks(right);
+  return mergeBooksArray(left, right, array);
+}
+
+function mergeBooksArray(left, right, array) {
+  let leftIndex = 0;
+  let rightIndex = 0;
+  let outputIndex = 0;
+  while (leftIndex < left.length && rightIndex < right.length) {
+    if (left[leftIndex] < right[rightIndex]) {
+      array[outputIndex++] = left[leftIndex++];
+    } else {
+      array[outputIndex++] = right[rightIndex++];
+    }
+  }
+
+  for (let i = leftIndex; i < left.length; i++) {
+    array[outputIndex++] = left[i];
+  }
+
+  for (let i = rightIndex; i < right.length; i++) {
+    array[outputIndex++] = right[i];
+  }
+  // console.log('merge step: ', count, ' - ', array);
+  return array;
+}
+
+// function alphaOrder(book1, book2) {}
+
+const bookArray = [
+  'Leviathan Wakes',
+  'Calibans War',
+  'Abaddons Gate',
+  'Cibola Burn',
+  'Nemesis Games',
+  'Babylons Ashes',
+  'Presepolis Rising',
+  'Tiamats Wrath',
+  'Harry Potter and the Prisoner of A',
+  'Harry Potter and the Sorcerers Stone',
+];
+console.log(mSortingBooks(bookArray));
